@@ -1,17 +1,22 @@
 package com.tigerobo.redis.utils;
 
 import com.tigerobo.redis.annotation.MetaAnnotation;
+import com.tigerobo.redis.annotation.Param;
 import javassist.*;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+
 public class ReflectUtils {
 
-    public static CtMethod[] getClazzOfCtMethods(Class clazz) throws NotFoundException {
-        CtClass cc =  convertClass2CtClass(clazz);
-        CtMethod[] cm = cc.getDeclaredMethods();
-        return cm;
+    public static Method[] getClazzOfCtMethods(Class clazz) throws NotFoundException {
+//        CtClass cc =  convertClass2CtClass(clazz);
+//        CtMethod[] cm = cc.getDeclaredMethods();
+        return clazz.getDeclaredMethods();
     }
 
     public static CtClass convertClass2CtClass(Class cLass) throws NotFoundException {
@@ -31,17 +36,25 @@ public class ReflectUtils {
         return paramNames;
     }
 
-    public static boolean isCanditateByParamterName(CtMethod cm, MetaAnnotation ms){
+    public static boolean isCanditateByParamterName(Method cm, MetaAnnotation ms) {
         try {
-            String[] ss =methodParamterOriginalName(cm);
-            for(String s:ss){
-                if(ms.getObject(s)==null){
+
+            Parameter[] paramters = cm.getParameters();
+            for (Parameter paramter : paramters) {
+                Annotation parameterAnnotation = paramter.getAnnotation(Param.class);
+                if (parameterAnnotation != null) {
+                    String name = ((Param) parameterAnnotation).name();
+                    if (name==null || ms.getObject(name) == null) {
+                        return false;
+                    }
+                }else{
                     return false;
                 }
+
             }
             return true;
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }

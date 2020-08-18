@@ -17,71 +17,72 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
-public class WrapAnnotation  {
+public class WrapAnnotation {
     public Annotation annotation;
     public String bindMethodName;
     public MetaAnnotation ma = new MetaAnnotation();
 
 
-    WrapAnnotation(Annotation an,String bindMethodName){
+    WrapAnnotation(Annotation an, String bindMethodName) {
         ma.registerAnnotation(an).parser();
         this.annotation = an;
         this.bindMethodName = bindMethodName;
     }
 
-    public String getId(){
+    public String getId() {
         MetaAnnotation ma = new MetaAnnotation();
         ma.registerAnnotation(annotation);
         return ma.getId();
     }
 
-    public void putAllArgs(Map<String,Object> map){
-        map.entrySet().forEach(val->putArgs(val.getKey(),val.getValue()));
+    public void putAllArgs(Map<String, Object> map) {
+        map.entrySet().forEach(val -> putArgs(val.getKey(), val.getValue()));
     }
 
 
-    public void putArgs(String key,Object value){
-        ma.putMetaValue(key,value);
+    public void putArgs(String key, Object value) {
+        ma.putMetaValue(key, value);
     }
 
     public Object[] getArgs(Method method, WrapClass wc) throws NotFoundException {
-        CtClass mainCtClass =  ReflectUtils.convertClass2CtClass(wc.getAnnotation().getClass());
-        List<CtClass> paramterClazz = Arrays.stream(method.getGenericParameterTypes()).map(val-> {
-            try {
-                return ReflectUtils.convertClass2CtClass((Class) val);
-            } catch (NotFoundException e) {}
-            return null;
-        }).collect(Collectors.toList());
-        CtMethod ctMethod = mainCtClass.getDeclaredMethod(method.getName(), paramterClazz.toArray(new CtClass[paramterClazz.size()]));
-        return getMethodArgsByParameterNames(ctMethod);
-    }
-
-    public Object[] getMethodArgsByParameterNames(CtMethod ctMethod ) throws NotFoundException {
+        Parameter[] paramters = method.getParameters();
         List<Object> args = new ArrayList();
-        for(String p:ReflectUtils.methodParamterOriginalName(ctMethod)){
-            Object arg = ma.getObject(p);
-            if(arg != null){
-                args.add(arg);
+        if (paramters != null && paramters.length > 0) {
+            try {
+
+                for (int i = 0; i < paramters.length; i++) {
+                    Annotation parameterAnnotation = paramters[i].getAnnotation(Param.class);
+                    if (parameterAnnotation != null && parameterAnnotation instanceof Param) {
+                        Object arg = ma.getObject(((Param) parameterAnnotation).name());
+                        if (arg != null) {
+                            args.add(arg);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-
         return args.toArray(new Object[args.size()]);
     }
 
-    public static class Builder{
+
+    public static class Builder {
         public Annotation annotation;
         public String bindMethodName;
 
-        public Builder setAnnotation(Annotation an){
+        public Builder setAnnotation(Annotation an) {
             this.annotation = an;
             return this;
         }
-        public Builder setBindMethodName(String bindMethodName){
+
+        public Builder setBindMethodName(String bindMethodName) {
             this.bindMethodName = bindMethodName;
             return this;
         }
-        public WrapAnnotation build(){
-            return  new WrapAnnotation(annotation,bindMethodName);
+
+        public WrapAnnotation build() {
+            return new WrapAnnotation(annotation, bindMethodName);
         }
     }
 }

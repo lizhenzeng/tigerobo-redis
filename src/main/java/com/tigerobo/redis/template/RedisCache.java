@@ -1,5 +1,6 @@
 package com.tigerobo.redis.template;
 
+import com.tigerobo.redis.annotation.Param;
 import com.tigerobo.redis.operator.CacheOperator;
 import com.tigerobo.redis.utils.Validation;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,17 +22,17 @@ public class RedisCache implements CacheOperator {
 
 
     @Override
-    public void putIfAbsent(String[] keys, Object value, String expireTime) {
+    public void putIfAbsent(@Param(name = "keys") String[] keys,@Param(name = "value") Object value,@Param(name = "expireTime") String expireTime) {
         Arrays.stream(keys).forEach(val->putIfAbsent(val,value,expireTime));
     }
 
     @Override
-    public void putIfAbsent(String key, Object value, String expireTime) {
+    public void putIfAbsent(@Param(name = "key")String key,@Param(name = "value")  Object value,@Param(name = "expireTime")  String expireTime) {
         try {
             if(redisTemplate!=null && Validation.notEmptyAndBlankStr(expireTime)&& Validation.notEmptyAndBlankStr(key)  && value !=null){
                 Long expire =  Long.valueOf(expireTime);
-                Duration duration =  Duration.ofMillis(expire);
-                redisTemplate.opsForValue().setIfAbsent(key,value,duration);
+//                Duration duration =  Duration.ofMillis(expire);
+                redisTemplate.opsForValue().setIfAbsent(key,value);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -41,12 +42,12 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public void putIfAbsent(String[] keys, Object value) {
+    public void putIfAbsent(@Param(name = "keys")String[] keys,@Param(name = "value") Object value) {
         Arrays.stream(keys).forEach(val->putIfAbsent(val,value));
     }
 
     @Override
-    public void putIfAbsent(String key, Object value) {
+    public void putIfAbsent(@Param(name = "key")String key,@Param(name = "value") Object value) {
         if(redisTemplate!=null && Validation.notEmptyAndBlankStr(key) && value !=null){
             redisTemplate.opsForValue().setIfAbsent(key,value);
         }
@@ -54,12 +55,12 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public void put(String key, Object value, String expireTime) {
+    public void put(@Param(name = "key")String key,@Param(name = "value")Object value,@Param(name = "expireTime") String expireTime) {
         try {
             if(redisTemplate!=null && Validation.notEmptyAndBlankStr(expireTime)&& Validation.notEmptyAndBlankStr(key)  && value !=null){
                 Long expire =  Long.valueOf(expireTime);
-                Duration duration =  Duration.ofMillis(expire);
-                redisTemplate.opsForValue().set(key,value,duration);
+//                Duration duration =  Duration.ofMillis(expire);
+                redisTemplate.opsForValue().set(key,value,expire);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -67,14 +68,14 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public void put(String key, Object value) {
+    public void put(@Param(name = "key")String key,@Param(name = "value")  Object value) {
         if(redisTemplate!=null && Validation.notEmptyAndBlankStr(key) && value !=null){
             redisTemplate.opsForValue().set(key,value);
         }
     }
 
     @Override
-    public Object getValue(String key) {
+    public Object getValue(@Param(name = "key")String key) {
         if(redisTemplate!=null && Validation.notEmptyAndBlankStr(key)){
             return redisTemplate.opsForValue().get(key);
         }
@@ -82,7 +83,7 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public Object getValue(String[] keys) {
+    public Object getValue(@Param(name = "keys")String[] keys) {
        List<Object> objectList = Arrays.stream(keys).map(val->getValue(val)).collect(Collectors.toList());
        if(Validation.collectNotEmpty(objectList)){
            return objectList.get(0);
@@ -91,14 +92,14 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(@Param(name = "key")String key) {
         if(redisTemplate!=null){
             redisTemplate.delete(key);
         }
     }
 
     @Override
-    public void remove(String[] keys) {
+    public void remove(@Param(name = "keys")String[] keys) {
         Arrays.stream(keys).forEach(val->remove(val));
     }
 }

@@ -50,8 +50,10 @@ public class TraggerCachePut extends AbstractCacheOperator {
             } catch (Throwable throwable1) {
                 throwable1.printStackTrace();
             }
+        }finally {
+            return value;
         }
-        return value;
+
     }
 
 }

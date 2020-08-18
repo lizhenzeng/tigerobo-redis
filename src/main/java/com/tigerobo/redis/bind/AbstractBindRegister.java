@@ -33,15 +33,16 @@ abstract class AbstractBindRegister implements BindRegister {
     public Method getMethodCandiatateByArgs(MetaAnnotation ms,String sourceMethodName,Object target){
         try {
 
-            for(CtMethod m: ReflectUtils.getClazzOfCtMethods(target.getClass())){
-                if (m.getName().equalsIgnoreCase(sourceMethodName)) {
+
+            for(Method m: ReflectUtils.getClazzOfCtMethods(target.getClass())){
+                if (m.getName().equalsIgnoreCase(sourceMethodName) ) {
                     if(ReflectUtils.isCanditateByParamterName(m,ms)){
-                        return getCtMethodMappingMethod(m,target.getClass());
+                        return m;
                     }
                 }
             }
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         return null;

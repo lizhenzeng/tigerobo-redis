@@ -6,15 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
-@Configuration(
-        proxyBeanMethods = false
-)
+@Configuration
 public class CacheConfiguration {
 
     @AutoConfigureAfter({RedisTemplate.class})
-    @Configuration(
-            proxyBeanMethods = false
-    )
+    @Configuration
     static class RedisCacheFactory implements CacheFactory {
 
 

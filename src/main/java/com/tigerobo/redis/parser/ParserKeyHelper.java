@@ -1,6 +1,7 @@
 package com.tigerobo.redis.parser;
 
 import com.tigerobo.redis.annotation.MetaAnnotation;
+import com.tigerobo.redis.annotation.Param;
 import com.tigerobo.redis.exception.OgnlCountException;
 import com.tigerobo.redis.exception.OgnlException;
 import com.tigerobo.redis.utils.Validation;
@@ -10,6 +11,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,20 @@ public class ParserKeyHelper {
 
         Map<String,Object> argsMap = new HashMap<>();
         String[] ps  = processMethod.getParameterNames();
+        Parameter[] paramters = processMethod.getMethod().getParameters();
+        if(paramters!=null && paramters.length>0){
+            try {
+                for(int i = 0;i<paramters.length;i++){
+                    Annotation parameterAnnotation = paramters[i].getAnnotation(Param.class);
+                    if(parameterAnnotation instanceof Param){
+                        argsMap.put(ps[i],args[i]);
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
         if(ps.length != args.length){
             throw new OgnlCountException(String.format("process method args length not equal method paramters !"));
         }
