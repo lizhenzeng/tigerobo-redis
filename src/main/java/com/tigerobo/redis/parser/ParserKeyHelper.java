@@ -4,6 +4,7 @@ import com.tigerobo.redis.annotation.MetaAnnotation;
 import com.tigerobo.redis.annotation.Param;
 import com.tigerobo.redis.exception.OgnlCountException;
 import com.tigerobo.redis.exception.OgnlException;
+import com.tigerobo.redis.utils.MatchUtils;
 import com.tigerobo.redis.utils.Validation;
 import ognl.Ognl;
 import ognl.OgnlContext;
@@ -21,6 +22,7 @@ public class ParserKeyHelper {
 
 
 
+    private static final String  paramterReg ="(#\\w*\\.?\\w+)";
 
     public static Map<String,Object> getKeyByOgnl(ProceedingJoinPoint pjp,Annotation an,String[] methodNames){
         Map<String,Object> res = new HashMap<>();
@@ -113,7 +115,7 @@ public class ParserKeyHelper {
     public static String getTokenList(String value, OgnlContext context )  {
         if(Validation.notEmptyAndBlankStr(value)){
             Set<String> res = new HashSet<>();
-            getSplitTokenList("{","}",value,res,0,value.length()-1);
+            res = MatchUtils.getRegValueFromStr(paramterReg,value);
             Map<String,String> replaceToken = new HashMap<>();
             res.forEach(val->{
                 try {
