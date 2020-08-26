@@ -26,10 +26,11 @@ public class TraggerCacheRemove extends AbstractCacheOperator {
     }
 
     @Around("cacheRemove()")
-    public void process(ProceedingJoinPoint pjp) {
+    public Object process(ProceedingJoinPoint pjp) {
         MethodSignature targetMethodSignature =(MethodSignature) pjp.getSignature();
         TigeroboCacheRemove ce = targetMethodSignature.getMethod().getDeclaredAnnotation(TigeroboCacheRemove.class);
         Map<String,Object>  otherArgs =  ParserKeyHelper.getKeyByOgnl(pjp,ce,new String[]{"key","keys"});
+        Object value = null;
         try {
             if(ce!=null){
                 Object template =  null;
@@ -37,8 +38,9 @@ public class TraggerCacheRemove extends AbstractCacheOperator {
                     template = cacheManager.getTemplateInstanceByClassName(ce.template().getName());
                 }
                 getValueByAnnotation(ce,template,"remove",otherArgs);
-                pjp.proceed();
+                value =pjp.proceed();
             }
+            return value;
         } catch (Throwable throwable) {
             try {
                 pjp.proceed();
@@ -46,6 +48,7 @@ public class TraggerCacheRemove extends AbstractCacheOperator {
                 throwable1.printStackTrace();
             }
         }
+        return value;
     }
 
 }
