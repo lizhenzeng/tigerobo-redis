@@ -1,8 +1,18 @@
 package com.tigerobo.redis.operator;
 
+import com.tigerobo.redis.annotation.Param;
+
 public interface CacheOperator {
 
-    void putIfAbsent(String[] keys,Object value,String expireTime);
+    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride);
+
+    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime);
+
+    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride);
+
+    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime);
+
+    void putIfAbsent(String[] keys, Object value, String expireTime);
 
     void putIfAbsent(String key,Object value,String expireTime);
 
