@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.tigerobo.redis.tool</groupId>
             <artifactId>tool-redis</artifactId>
-            <version>1.0.10</version>
+            <version>1.0.11</version>
             <scope>compile</scope>
         </dependency>
 

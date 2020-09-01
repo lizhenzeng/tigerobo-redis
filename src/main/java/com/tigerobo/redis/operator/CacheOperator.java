@@ -4,13 +4,13 @@ import com.tigerobo.redis.annotation.Param;
 
 public interface CacheOperator {
 
-    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride);
+    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr);
 
-    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime);
+    void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr);
 
-    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride);
+    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr);
 
-    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime);
+    Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr);
 
     void putIfAbsent(String[] keys, Object value, String expireTime);
 

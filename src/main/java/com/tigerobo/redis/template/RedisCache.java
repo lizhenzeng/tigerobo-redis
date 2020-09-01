@@ -31,33 +31,37 @@ public class RedisCache implements CacheOperator {
     }
 
     @Override
-    public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride) {
-        Arrays.stream(keys).forEach(val -> increment(val, start, stride, "-1"));
+    public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr) {
+        Arrays.stream(keys).forEach(val -> increment(val, start, stride, "-1",ifAbsentNeedIncr));
     }
 
     @Override
-    public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime) {
-        Arrays.stream(keys).forEach(val -> increment(val, start, stride, expireTime));
+    public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr) {
+        Arrays.stream(keys).forEach(val -> increment(val, start, stride, expireTime,ifAbsentNeedIncr));
     }
 
     @Override
-    public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride) {
-        return increment(key, start, stride, "-1");
+    public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr) {
+        return increment(key, start, stride, "-1", ifAbsentNeedIncr);
     }
 
     @Override
-    public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime) {
+    public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime, @Param(name = "ifAbsentNeedIncr") String ifAbsentNeedIncr) {
         Long res = null;
         try {
             setRedisTemplateValueSerializer(3);
             if (redisTemplate != null && Validation.notEmptyAndBlankStr(expireTime) && Validation.notEmptyAndBlankStr(key)) {
-                if(redisTemplate.opsForValue().setIfAbsent(key, start)){
+                if (redisTemplate.opsForValue().setIfAbsent(key, start)) {
                     logger.info("increment {} is absent!", key);
                 }
-                res = redisTemplate.opsForValue().increment(key, ConvertUtils.convertObjectToT(stride,Integer.class).longValue());
-                if (Validation.notEmptyAndBlankStr(expireTime) && ConvertUtils.convertObjectToT(expireTime,Integer.class) > 0) {
+                if(ifAbsentNeedIncr.equalsIgnoreCase("1")){
+                    res = redisTemplate.opsForValue().increment(key, ConvertUtils.convertObjectToT(stride, Integer.class).longValue());
+                }else{
+                    res = ConvertUtils.convertObjectToT(start,Integer.class).longValue();
+                }
+                if (Validation.notEmptyAndBlankStr(expireTime) && ConvertUtils.convertObjectToT(expireTime, Integer.class) > 0) {
                     logger.info("increment expire time {} !", expireTime);
-                    redisTemplate.expire(key, ConvertUtils.convertObjectToT(expireTime,Integer.class), TimeUnit.SECONDS);
+                    redisTemplate.expire(key, ConvertUtils.convertObjectToT(expireTime, Integer.class), TimeUnit.SECONDS);
                 }
                 logger.info("increment Key is {} . value is {} success!", key, res);
             }
