@@ -22,45 +22,47 @@ public class RedisCache implements CacheOperator {
     private static final Logger logger = LoggerFactory.getLogger(RedisCache.class);
 
 
-
     private RedisTemplate redisTemplate;
+
     public RedisCache(Object redisTemplate) {
         if (redisTemplate instanceof RedisTemplate) {
-            this.redisTemplate =  (RedisTemplate) redisTemplate;
+            this.redisTemplate = (RedisTemplate) redisTemplate;
         }
     }
+
     @Override
     public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride) {
-        Arrays.stream(keys).forEach(val->increment(val,start,stride,"-1"));
+        Arrays.stream(keys).forEach(val -> increment(val, start, stride, "-1"));
     }
+
     @Override
     public void increment(@Param(name = "keys") String[] keys, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime) {
-        Arrays.stream(keys).forEach(val->increment(val,start,stride,expireTime));
+        Arrays.stream(keys).forEach(val -> increment(val, start, stride, expireTime));
     }
+
     @Override
     public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride) {
-        return increment(key,start,stride,"-1");
+        return increment(key, start, stride, "-1");
     }
-        @Override
+
+    @Override
     public Long increment(@Param(name = "key") String key, @Param(name = "start") Object start, @Param(name = "stride") Object stride, @Param(name = "expireTime") String expireTime) {
         Long res = null;
         try {
             setRedisTemplateValueSerializer(3);
             if (redisTemplate != null && Validation.notEmptyAndBlankStr(expireTime) && Validation.notEmptyAndBlankStr(key)) {
-                if (redisTemplate.opsForValue().setIfAbsent(key, start)) {
+                if(redisTemplate.opsForValue().setIfAbsent(key, start)){
                     logger.info("increment {} is absent!", key);
-                    res = ConvertUtils.convertObjectToInteger(start).longValue();
-                } else {
-                    res = redisTemplate.opsForValue().increment(key, ConvertUtils.convertObjectToInteger(stride).longValue());
                 }
-                if (Validation.notEmptyAndBlankStr(expireTime) &&  ConvertUtils.convertObjectToInteger(expireTime)>0) {
+                res = redisTemplate.opsForValue().increment(key, ConvertUtils.convertObjectToT(stride,Integer.class).longValue());
+                if (Validation.notEmptyAndBlankStr(expireTime) && ConvertUtils.convertObjectToT(expireTime,Integer.class) > 0) {
                     logger.info("increment expire time {} !", expireTime);
-                    redisTemplate.expire(key, ConvertUtils.convertObjectToInteger(expireTime), TimeUnit.SECONDS);
+                    redisTemplate.expire(key, ConvertUtils.convertObjectToT(expireTime,Integer.class), TimeUnit.SECONDS);
                 }
                 logger.info("increment Key is {} . value is {} success!", key, res);
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("increment Key is {} . value is {} fail!", key, res);
         }
 
@@ -68,8 +70,8 @@ public class RedisCache implements CacheOperator {
     }
 
 
-    private void setRedisTemplateValueSerializer(Integer type){
-        switch (type){
+    private void setRedisTemplateValueSerializer(Integer type) {
+        switch (type) {
             case 1:
 //                redisTemplate.setKeySerializer(new GenericJackson2JsonRedisSerializer());
                 redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());

@@ -2,6 +2,7 @@ package com.tigerobo.redis.template;
 
 import com.tigerobo.redis.annotation.TigeroboCacheIncrOrDecr;
 import com.tigerobo.redis.parser.ParserKeyHelper;
+import com.tigerobo.redis.utils.ConvertUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,9 +38,11 @@ public class TraggerCacheIncr extends AbstractCacheOperator {
                 if(ce.template()!=null && template == null){
                     template = cacheManager.getTemplateInstanceByClassName(ce.template().getName());
                 }
+                value = pjp.proceed();
                 if(value == null){
-                    getValueByAnnotation(ce,template,"increment",otherArgs);
-                    value = pjp.proceed();
+                    value = ConvertUtils.convertObjectToT(getValueByAnnotation(ce,template,"increment",otherArgs)
+                            ,targetMethodSignature.getMethod().getReturnType());
+                    return value;
                 }
             }
         } catch (Throwable throwable) {
