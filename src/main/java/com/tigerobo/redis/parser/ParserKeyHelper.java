@@ -73,8 +73,12 @@ public class ParserKeyHelper {
                     return getToken((String) expressStr,context,ps);
                 }
                 if(expressStr.getClass().isAssignableFrom(String[].class)){
-                    List<String> keys = Arrays.stream(((String[]) expressStr)).map(val->getToken(val,context,ps)).collect(Collectors.toList());
-                    return keys.toArray(new String[keys.size()]);
+                    List<String> keys = Arrays.stream(((String[]) expressStr)).map(val->getToken(val,context,ps)).filter(val->Validation.notEmptyAndBlankStr(val)).collect(Collectors.toList());
+                    if(keys!=null && !keys.isEmpty()){
+                        return keys.toArray(new String[keys.size()]);
+                    }else{
+                        return null;
+                    }
                 }
             }
             return expressStr;

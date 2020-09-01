@@ -57,7 +57,7 @@ public class RedisCache implements CacheOperator {
                 if(ifAbsentNeedIncr.equalsIgnoreCase("1")){
                     res = redisTemplate.opsForValue().increment(key, ConvertUtils.convertObjectToT(stride, Integer.class).longValue());
                 }else{
-                    res = ConvertUtils.convertObjectToT(start,Integer.class).longValue();
+                    res = ConvertUtils.convertObjectToT(redisTemplate.opsForValue().get(key),Integer.class).longValue();
                 }
                 if (Validation.notEmptyAndBlankStr(expireTime) && ConvertUtils.convertObjectToT(expireTime, Integer.class) > 0) {
                     logger.info("increment expire time {} !", expireTime);
